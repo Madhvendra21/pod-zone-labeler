@@ -130,6 +130,6 @@ kopf run main.py --all-namespaces
 | Mechanism | Mutating Webhook (blocks pod creation) | Post-scheduling patch (non-blocking) |
 | Risk if down | Can block ALL pod creation | Pods create normally, just missing labels |
 | Complexity | Full policy engine + CRDs | ~100 lines of Python |
-| CPU/Memory | 3 replicas × ~60m CPU, ~50Mi each | 1 replica × ~50m CPU, ~64Mi |
+| CPU/Memory | 3 replicas × ~60m CPU, ~50Mi each | 2 replica × ~50m CPU, ~64Mi |
 | Scale-up issues | etcd throttle, timeouts at 1000 pods | Retry logic handles burst gracefully |
 | Dependencies | Kyverno Helm chart, CRDs, policies | Single Python file |

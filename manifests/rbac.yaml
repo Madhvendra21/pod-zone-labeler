@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: pod-zone-labeler
+  namespace: pod-zone-labeler
+  labels:
+    app.kubernetes.io/name: pod-zone-labeler
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pod-zone-labeler
+  labels:
+    app.kubernetes.io/name: pod-zone-labeler
+rules:
+  # Watch and patch pods across all namespaces
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "patch"]
+  # Read node labels to get zone info
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+  # kopf needs events and leases for its internals
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pod-zone-labeler
+  labels:
+    app.kubernetes.io/name: pod-zone-labeler
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pod-zone-labeler
+subjects:
+  - kind: ServiceAccount
+    name: pod-zone-labeler
+    namespace: pod-zone-labeler

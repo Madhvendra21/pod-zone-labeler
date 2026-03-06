@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-zone-labeler-config
+  namespace: pod-zone-labeler
+  labels:
+    app.kubernetes.io/name: pod-zone-labeler
+data:
+  # Comma-separated list of namespaces to exclude from labeling
+  EXCLUDED_NAMESPACES: "kube-system,kube-public,kube-node-lease,kyverno,pod-zone-labeler"
+  # How long to cache node labels (seconds)
+  NODE_CACHE_TTL_SECONDS: "300"
+  # Max retries when patching a pod during burst scale-up
+  MAX_PATCH_RETRIES: "3"

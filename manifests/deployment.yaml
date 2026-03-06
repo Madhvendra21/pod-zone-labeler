@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pod-zone-labeler
+  namespace: pod-zone-labeler
+  labels:
+    app.kubernetes.io/name: pod-zone-labeler
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: pod-zone-labeler
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: pod-zone-labeler
+    spec:
+      serviceAccountName: pod-zone-labeler
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        fsGroup: 65534
+      containers:
+        - name: operator
+          # TODO: Replace with your actual image registry path
+          image: <YOUR_REGISTRY>/pod-zone-labeler:latest
+          imagePullPolicy: Always
+          envFrom:
+            - configMapRef:
+                name: pod-zone-labeler-config
+          ports:
+            - name: health
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 10
+            periodSeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+      restartPolicy: Always
